@@ -1,4 +1,5 @@
 defmodule GPIOWeatherCloud.Worker do
+  require Logger
   use GenServer
 
   alias GPIOWeatherCloud.{CloudUpdater, WeatherAPI}
@@ -22,8 +23,16 @@ defmodule GPIOWeatherCloud.Worker do
   end
 
   @impl GenServer
-  def handle_cast(:update_forecast, _) do
-    {:noreply, WeatherAPI.get_new_forecast()}
+  def handle_cast(:update_forecast, old_forecast) do
+    Logger.info("Updating the forecast...")
+
+    case WeatherAPI.get_new_forecast() do
+      {:ok, forecast} ->
+        {:noreply, forecast}
+
+      {:error, _} ->
+        {:noreply, old_forecast}
+    end
   end
 
   @impl GenServer
@@ -33,13 +42,21 @@ defmodule GPIOWeatherCloud.Worker do
 
   @impl GenServer
   def handle_info(:initial_setup, _) do
-    {:ok, new_forecast} = WeatherAPI.get_new_forecast()
-    CloudUpdater.update_cloud(new_forecast)
-    {:noreply, new_forecast}
+    Logger.info("Performing setup...")
+
+    case WeatherAPI.get_new_forecast() do
+      {:ok, forecast} ->
+        CloudUpdater.update_cloud(forecast)
+        {:noreply, forecast}
+
+      {:error, _} ->
+        {:noreply, %{}}
+    end
   end
 
   @impl GenServer
   def terminate(_, _) do
+    Logger.info("Terminating...")
     CloudUpdater.clear_pins()
   end
 end

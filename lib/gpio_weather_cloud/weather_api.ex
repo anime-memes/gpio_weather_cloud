@@ -1,11 +1,10 @@
 defmodule GPIOWeatherCloud.WeatherAPI do
   defmodule Forecast do
-    defstruct temp: nil, conditions: "", clouds: nil, wind_speed: nil
+    defstruct temp: nil, conditions: "", wind_speed: nil
 
     @type t :: %__MODULE__{
             temp: number(),
             conditions: binary(),
-            clouds: number(),
             wind_speed: number()
           }
   end
@@ -44,12 +43,10 @@ defmodule GPIOWeatherCloud.WeatherAPI do
   defp build_forecast(%{
          "temp" => real_temp,
          "weather" => next_weather,
-         "clouds" => clouds,
          "wind_speed" => wind
        }) do
     {:ok,
      %Forecast{
-       clouds: clouds,
        temp: real_temp,
        conditions: next_weather |> hd() |> Map.get("main"),
        wind_speed: wind
