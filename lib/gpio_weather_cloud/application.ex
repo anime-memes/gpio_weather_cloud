@@ -7,7 +7,7 @@ defmodule GPIOWeatherCloud.Application do
 
   def start(_type, _args) do
     children = [
-      GPIOWeatherCloud.Worker
+      GPIOWeatherCloud.Server 
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

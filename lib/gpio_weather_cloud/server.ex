@@ -1,4 +1,4 @@
-defmodule GPIOWeatherCloud.Worker do
+defmodule GPIOWeatherCloud.Server do
   require Logger
   use GenServer
 
