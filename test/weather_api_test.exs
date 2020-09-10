@@ -1,5 +1,5 @@
 defmodule GPIOWeatherCloudTest.WeatherAPI do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   setup do
     bypass = Bypass.open(port: 3000)

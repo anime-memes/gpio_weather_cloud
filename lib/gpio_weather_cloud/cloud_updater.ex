@@ -1,10 +1,7 @@
 defmodule GPIOWeatherCloud.CloudUpdater do
   require Logger
   alias GPIOWeatherCloud.WeatherAPI.Forecast
-
-  @temp_pins [13, 19, 16]
-  @wind_pins [15, 18, 24, 26]
-  @condition_pins %{"Clear" => 14, "Drizzle" => 17, "Clouds" => 10, "Rain" => 12, "Snow" => 21}
+  alias GPIOWeatherCloud.Config
 
   def update_cloud(%Forecast{
         temp: temp,
@@ -20,7 +17,7 @@ defmodule GPIOWeatherCloud.CloudUpdater do
   def clear_pins do
     Logger.info("Clearing pins...")
 
-    [@temp_pins, @wind_pins, Map.values(@condition_pins)]
+    [Config.temp_pins(), Config.wind_pins(), Map.values(Config.condition_pins())]
     |> List.flatten()
     |> Enum.each(&set_pin(&1, 0))
   end
@@ -28,7 +25,7 @@ defmodule GPIOWeatherCloud.CloudUpdater do
   defp set_temp_pins(temp) do
     Logger.info("Setting temp pins...")
 
-    @temp_pins
+    Config.temp_pins()
     |> Enum.take(min(floor(abs(temp) / 10), 3))
     |> Enum.each(&set_pin(&1, 1))
   end
@@ -36,7 +33,7 @@ defmodule GPIOWeatherCloud.CloudUpdater do
   defp set_wind_pins(wind_speed) do
     Logger.info("Setting wind pins...")
 
-    @wind_pins
+    Config.wind_pins()
     |> Enum.take(min(floor(wind_speed / 8) + 1, 4))
     |> Enum.each(&set_pin(&1, 1))
   end
@@ -44,7 +41,7 @@ defmodule GPIOWeatherCloud.CloudUpdater do
   defp set_conditions_pins(conditions) do
     Logger.info("Setting conditions pins...")
 
-    case Map.get(@condition_pins, conditions) do
+    case Map.get(Config.condition_pins(), conditions) do
       nil -> nil
       pin -> set_pin(pin, 1)
     end
