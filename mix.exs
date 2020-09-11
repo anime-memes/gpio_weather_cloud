@@ -35,7 +35,9 @@ defmodule GPIOWeatherCloud.MixProject do
       {:excoveralls, "~> 0.13.1", only: :test},
       {:dialyxir, "~> 1.0.0", only: :dev, runtime: false},
       {:credo, "~> 1.4.0", only: :dev, runtime: false},
-      {:bypass, "~> 2.0.0", only: :test}
+      {:bypass, "~> 2.0.0", only: :test},
+      {:distillery, "~> 2.1.1"},
+      {:sched_ex, "~> 1.1.1"}
     ]
   end
 end

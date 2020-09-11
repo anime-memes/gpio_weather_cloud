@@ -30,7 +30,9 @@ defmodule GPIOWeatherCloudTest.WeatherAPI do
         Plug.Conn.resp(conn, 200, correct_response())
       end)
 
-      assert {:ok, %GPIOWeatherCloud.WeatherAPI.Forecast{temp: 10, conditions: "Clear", wind_speed: 1}} == GPIOWeatherCloud.WeatherAPI.get_new_forecast()
+      assert {:ok,
+              %GPIOWeatherCloud.WeatherAPI.Forecast{temp: 10, conditions: "Clear", wind_speed: 1}} ==
+               GPIOWeatherCloud.WeatherAPI.get_new_forecast()
     end
 
     test "returns error tuple when invalid response encountered", %{bypass: bypass} do

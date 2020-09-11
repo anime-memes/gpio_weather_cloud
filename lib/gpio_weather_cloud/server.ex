@@ -10,6 +10,7 @@ defmodule GPIOWeatherCloud.Server do
 
   @impl GenServer
   def init(state) do
+    Process.flag(:trap_exit, true)
     Process.send_after(self(), :initial_setup, 0)
     {:ok, state}
   end
@@ -26,13 +27,7 @@ defmodule GPIOWeatherCloud.Server do
   def handle_cast(:update_forecast, old_forecast) do
     Logger.info("Updating the forecast...")
 
-    case WeatherAPI.get_new_forecast() do
-      {:ok, forecast} ->
-        {:noreply, forecast}
-
-      {:error, _} ->
-        {:noreply, old_forecast}
-    end
+    forecast_update_result(old_forecast)
   end
 
   @impl GenServer
@@ -44,19 +39,24 @@ defmodule GPIOWeatherCloud.Server do
   def handle_info(:initial_setup, _) do
     Logger.info("Performing setup...")
 
+    forecast_update_result(%{})
+  end
+
+  @impl GenServer
+  def terminate(_, state) do
+    Logger.info("Terminating...")
+    CloudUpdater.clear_pins()
+    state
+  end
+
+  defp forecast_update_result(old_forecast) do
     case WeatherAPI.get_new_forecast() do
       {:ok, forecast} ->
         CloudUpdater.update_cloud(forecast)
         {:noreply, forecast}
 
       {:error, _} ->
-        {:noreply, %{}}
+        {:noreply, old_forecast}
     end
-  end
-
-  @impl GenServer
-  def terminate(_, _) do
-    Logger.info("Terminating...")
-    CloudUpdater.clear_pins()
   end
 end

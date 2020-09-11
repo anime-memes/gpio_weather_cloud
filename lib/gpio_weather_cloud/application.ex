@@ -7,7 +7,12 @@ defmodule GPIOWeatherCloud.Application do
 
   def start(_type, _args) do
     children = [
-      GPIOWeatherCloud.Server 
+      GPIOWeatherCloud.Server,
+      %{
+        id: "updater",
+        start:
+          {SchedEx, :run_every, [GPIOWeatherCloud.Server, :update_forecast, [], "*/30 * * * *"]}
+      }
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
